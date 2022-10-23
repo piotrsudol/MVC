@@ -4,7 +4,8 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Web;
 
-public class MVCContainer {
+public class MVCContainer
+{
     private List<Type> cachedControllers = new List<Type>();
 
     public MVCContainer()
@@ -18,24 +19,24 @@ public class MVCContainer {
     }
 
     public object Resolve(Uri uri) {
-        var controller = getController(uri);
+        var controller = GetController(uri);
 
         if (controller == null)
             throw new BadRequestException();
 
-        var action = getAction(controller, uri);
+        var action = GetAction(controller, uri);
 
         if (action == null)
             throw new BadRequestException();
 
-        var parameters = getParameters(action, uri);
+        var parameters = GetParameters(action, uri);
 
 #pragma warning disable CS8603 // Possible null reference return.
         return action.Invoke(controller, parameters);
 #pragma warning restore CS8603 // Possible null reference return.
     }
 
-    private object[] getParameters(MethodInfo methodInfo, Uri uri)
+    private object[] GetParameters(MethodInfo methodInfo, Uri uri)
     {
         var parameterInfos = methodInfo.GetParameters().ToList();
         if (parameterInfos.Count == 0)
@@ -69,7 +70,7 @@ public class MVCContainer {
         }
     }
 
-    private MethodInfo getAction(Controller controller, Uri uri) {
+    private MethodInfo GetAction(Controller controller, Uri uri) {
 
         var action = uri.AbsolutePath.Split("/").Last();
         return controller
@@ -78,7 +79,7 @@ public class MVCContainer {
             .First(x => x.Name.Equals(action, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private Controller getController(Uri uri)
+    private Controller GetController(Uri uri)
     {
         var controllerType = cachedControllers
             .FirstOrDefault(x => uri.AbsolutePath
